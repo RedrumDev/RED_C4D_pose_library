@@ -4,11 +4,19 @@ from c4d import gui
 import re  # Regular expression
 import json
 
+
+
+plugin_ID = 1054468
+Associated_Label = "RED_pose_library"
+
 ctrl_prefix = ""
 ctrl_list =""
 ctrl_list_size = ""
 char_name = ""
 pose_folder = ""
+pose_folder = "C:\Redrum programming\RED_pose_library_test_folder"
+
+pose_data = {}
 
 ctrl_prefix = c4d.gui.InputDialog("What is your controllers pefix?", "CTRL")
 print ctrl_prefix
@@ -87,11 +95,32 @@ for tr in objectChildren():
 
 
 
+def render_thumbnail():
+     # Retrieves the current active render settings
+    rd = doc.GetActiveRenderData()
+    saved = rd[c4d.RDATA_RENDERENGINE] 
+    rd[c4d.RDATA_RENDERENGINE]  = c4d.RDATA_RENDERENGINE_PREVIEWHARDWARE
     
+    # Creates a Multi Pass Bitmaps that will store the render result
+    bmp = c4d.bitmaps.MultipassBitmap(int(rd[c4d.RDATA_XRES]), int(rd[c4d.RDATA_YRES]), c4d.COLORMODE_RGB)
+    if bmp is None:
+        raise RuntimeError("Failed to create the bitmap.")
+
+    # Adds an alpha channel
+    bmp.AddChannel(False, False)
+
+    # Renders the document
+    if c4d.documents.RenderDocument(doc, rd.GetData(), bmp, c4d.RENDERFLAGS_EXTERNAL) != c4d.RENDERRESULT_OK:
+        raise RuntimeError("Failed to render the temporary document.")
+
+    # Displays the render in the Picture Viewer
+    c4d.bitmaps.ShowBitmap(bmp)
+
+    rd[c4d.RDATA_RENDERENGINE] = saved
 
 
 
-
+render_thumbnail()
 
 
 
