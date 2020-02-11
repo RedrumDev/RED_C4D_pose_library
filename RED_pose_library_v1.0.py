@@ -2,6 +2,7 @@
 import c4d
 from c4d import gui
 import re  # Regular expression
+import json
 
 ctrl_prefix = ""
 ctrl_list =""
@@ -9,7 +10,8 @@ ctrl_list_size = ""
 char_name = ""
 pose_folder = ""
 
-
+ctrl_prefix = c4d.gui.InputDialog("What is your controllers pefix?", "CTRL")
+print ctrl_prefix
 
 
 # get current keyframe
@@ -23,9 +25,7 @@ def GetCurrentFrame():
     # print "current frame is: ",  curFrame
     return curFrame
 
-
 GetCurrentFrame()
-
 
 # get the name of my surrect selected object
 MySelected = doc.GetActiveObjects(0)
@@ -33,9 +33,7 @@ for myObject in MySelected:
     myObjectName =  myObject [c4d.ID_BASELIST_NAME] 
     
 
-
-
-# Grabs all my objects including its children, warns is nothig is selected   
+# Grabs all my objects including its children, warns is nothig is selected, returns all objects   
 def objectChildren(): 
     def GetObjects(obj):
           objList = [obj]
@@ -51,20 +49,24 @@ def objectChildren():
         test = doc.SearchObject(myObjectName)          
         myObjects = GetObjects(test)
         return myObjects
-        
-    
-objectChildren()    
+            
+print "total objects is:", len(objectChildren())    
 
 
 #stores all objects where the name has a certain prefix in a list
-for items in objectChildren():
-    #print items[c4d.ID_BASELIST_NAME]
+for index, items in enumerate(objectChildren()):
+    #json_waarde = {index:items}
+    #y = json.dumps(json_waarde)
+    #print y
     pass
+    
+    #print items[c4d.ID_BASELIST_NAME]
+    
 
+# Filter enkel CTRL* objecten
+        
     
-    
-    
-# gets the value of all keyframed attributes    
+# gets the value of all keyframed COTROLLER attributes    
 trs = op.GetCTracks()  
 #if trs != None:
 for tr in objectChildren():  
@@ -72,6 +74,7 @@ for tr in objectChildren():
         #    if tr.GetDescriptionID()[1].id == c4d.VECTOR_X:  
         #        trpX = tr  
         tracked = tr.GetCTracks()
+        print tr
         for track in tracked:
             myCurve = track.GetCurve()
             keyframe_waarde = myCurve.GetValue(c4d.BaseTime(GetCurrentFrame()),)
@@ -81,9 +84,36 @@ for tr in objectChildren():
             #pass
             
         #print trackedAttributes[c4d.ID_BASELIST_NAME]   
+
+
+
+    
+
+
+
+
+
+
+
+
+
     
     
-    
+# some JSON:
+x =  '{ "name":"John", "age":30, "city":"New York"}'
+
+# parse x:
+y = json.loads(x)
+
+# the result is a Python dictionary:
+print(y["age"])
+
+
+
+
+
+
+
     
     
     
