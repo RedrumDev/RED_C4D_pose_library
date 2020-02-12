@@ -14,11 +14,15 @@ ctrl_list =""
 ctrl_list_size = ""
 char_name = ""
 pose_folder = ""
+pose_name = ""
 pose_folder = "C:\Redrum programming\RED_pose_library_test_folder"
 
 pose_data = {}
 
 ctrl_prefix = c4d.gui.InputDialog("What is your controllers pefix?", "CTRL")
+pose_name = c4d.gui.InputDialog("What is the name of your current pose?", "")
+save_folder = c4d.storage.SaveDialog(title="Stores Poses", force_suffix="", def_path="", def_file=pose_name)
+
 print ctrl_prefix
 
 
@@ -38,27 +42,26 @@ GetCurrentFrame()
 # get the name of my surrect selected object
 MySelected = doc.GetActiveObjects(0)
 for myObject in MySelected:
-    myObjectName =  myObject [c4d.ID_BASELIST_NAME] 
-    
+    myObjectName =  myObject [c4d.ID_BASELIST_NAME]
 
-# Grabs all my objects including its children, warns is nothig is selected, returns all objects   
-def objectChildren(): 
+
+# Grabs all my objects including its children, warns is nothig is selected, returns all objects
+def objectChildren():
     def GetObjects(obj):
           objList = [obj]
-          for kid in obj.GetChildren(): 
+          for kid in obj.GetChildren():
               objList += GetObjects(kid)
           return objList #return the selected object plus chidlren
-    
-    
+
     if  len(MySelected) <= 0:
         gui.MessageDialog('Your selection is empty, please select the root object of your character)')
-    else:    
-    
-        test = doc.SearchObject(myObjectName)          
+
+    else:
+        test = doc.SearchObject(myObjectName)
         myObjects = GetObjects(test)
         return myObjects
-            
-print "total objects is:", len(objectChildren())    
+
+print "total objects is:", len(objectChildren())
 
 
 #stores all objects where the name has a certain prefix in a list
@@ -67,20 +70,19 @@ for index, items in enumerate(objectChildren()):
     #y = json.dumps(json_waarde)
     #print y
     pass
-    
+
     #print items[c4d.ID_BASELIST_NAME]
-    
 
 # Filter enkel CTRL* objecten
-        
-    
-# gets the value of all keyframed COTROLLER attributes    
-trs = op.GetCTracks()  
+
+
+# gets the value of all keyframed COTROLLER attributes
+trs = op.GetCTracks()
 #if trs != None:
-for tr in objectChildren():  
-        #if tr.GetDescriptionID()[0].id == c4d.ID_BASEOBJECT_POSITION:  
-        #    if tr.GetDescriptionID()[1].id == c4d.VECTOR_X:  
-        #        trpX = tr  
+for tr in objectChildren():
+        #if tr.GetDescriptionID()[0].id == c4d.ID_BASEOBJECT_POSITION:
+        #    if tr.GetDescriptionID()[1].id == c4d.VECTOR_X:
+        #        trpX = tr
         tracked = tr.GetCTracks()
         print tr
         for track in tracked:
@@ -88,64 +90,68 @@ for tr in objectChildren():
             keyframe_waarde = myCurve.GetValue(c4d.BaseTime(GetCurrentFrame()),)
             print keyframe_waarde
             print track
-            print track[c4d.ID_BASELIST_NAME]  
+            print track[c4d.ID_BASELIST_NAME]
             #pass
-            
-        #print trackedAttributes[c4d.ID_BASELIST_NAME]   
 
+        #print trackedAttributes[c4d.ID_BASELIST_NAME]
 
 
 def render_thumbnail():
      # Retrieves the current active render settings
     rd = doc.GetActiveRenderData()
+    print rd
+    
+    renderpath = "C:\Redrum programming\RED_pose_library_test_folder\naam"
+    
+    #doc.GetActiveRenderData()[c4d.RDATA_PATH] = "C:\Redrum programming\RED_pose_library_test_folder\RED_pose_library_test_folder"
+    doc.GetActiveRenderData()[c4d.RDATA_PATH] = save_folder
+    doc.GetActiveRenderData()[c4d.RDATA_FRAMESEQUENCE] = 1
+
+    
     saved = rd[c4d.RDATA_RENDERENGINE] 
     rd[c4d.RDATA_RENDERENGINE]  = c4d.RDATA_RENDERENGINE_PREVIEWHARDWARE
-    
+
     # Creates a Multi Pass Bitmaps that will store the render result
     bmp = c4d.bitmaps.MultipassBitmap(int(rd[c4d.RDATA_XRES]), int(rd[c4d.RDATA_YRES]), c4d.COLORMODE_RGB)
     if bmp is None:
         raise RuntimeError("Failed to create the bitmap.")
 
+
     # Adds an alpha channel
-    bmp.AddChannel(False, False)
+    bmp.AddChannel(True, True)
 
     # Renders the document
     if c4d.documents.RenderDocument(doc, rd.GetData(), bmp, c4d.RENDERFLAGS_EXTERNAL) != c4d.RENDERRESULT_OK:
         raise RuntimeError("Failed to render the temporary document.")
 
     # Displays the render in the Picture Viewer
-    c4d.bitmaps.ShowBitmap(bmp)
+    #c4d.bitmaps.ShowBitmap(bmp)
 
     rd[c4d.RDATA_RENDERENGINE] = saved
 
 
-
 render_thumbnail()
 
+# Hoe data op te slaan
+# controllers = {object[],objectnaam[],waarde,curve}
 
 
-
-
-    
-    
 # some JSON:
 x =  '{ "name":"John", "age":30, "city":"New York"}'
 
 # parse x:
 y = json.loads(x)
 
+
+
+
+
+
 # the result is a Python dictionary:
-print(y["age"])
+#print(y["age"])
 
 
 
-
-
-
-
-    
-    
-    
 #track = op.FindCTrack(descid)
 #>
 #>     curve = track.GetCurve()
@@ -159,7 +165,7 @@ print(y["age"])
 
 
 """
-TODO: 
+TODO:
 
 A Get Active Object Name
 
@@ -180,16 +186,9 @@ selection = doc.GetActiveObjects(c4d.GETACTIVEOBJECTFLAGS_CHILDREN)
 
 
 
-
-
-
-
-  
-
- 
 #if len(selection) <= 0:
 #        gui.MessageDialog('Your selection is empty, please select the root object of your character)')
-    
+
 
 
 
@@ -197,15 +196,11 @@ selection = doc.GetActiveObjects(c4d.GETACTIVEOBJECTFLAGS_CHILDREN)
 def GetObjectKeyframes():
     obj = doc.GetActiveObject()
     print obj
-    
+
     hasKeyframes = objFindCtrack()
-    
+
 GetObjectKeyframes()
-"""    
-    
-
-
-
+"""
 
 
 def initiate_ui():
@@ -259,10 +254,10 @@ class OptionsDialog(gui.GeDialog):
         "   using regular expression")
     # Find replace strings:
     self.GroupBegin(GROUP_TEXT, c4d.BFH_SCALEFIT, 2, 2)
-    self.AddStaticText(LBL_INFO1, c4d.BFH_LEFT, name='Find:') 
+    self.AddStaticText(LBL_INFO1, c4d.BFH_LEFT, name='Find:')
     self.AddEditText(TXT_FIND, c4d.BFH_SCALEFIT)
     self.SetString(TXT_FIND, 'Cap1')
-    self.AddStaticText(LBL_INFO2, c4d.BFH_LEFT, name='Replace with:') 
+    self.AddStaticText(LBL_INFO2, c4d.BFH_LEFT, name='Replace with:')
     self.AddEditText(TXT_REPLACE, c4d.BFH_SCALEFIT)
     self.SetString(TXT_REPLACE, 'Floor')
     self.GroupEnd()
@@ -270,7 +265,7 @@ class OptionsDialog(gui.GeDialog):
     # Checkbox Option - append to existing string:
     self.AddCheckbox(CHK_MATCH_CASE, c4d.BFH_SCALEFIT,
                      initw=1, inith=1, name="match case")
-    self.SetBool(CHK_MATCH_CASE, True)   
+    self.SetBool(CHK_MATCH_CASE, True)
     self.AddSeparatorH(c4d.BFH_SCALE);
     # Buttons - an Ok and Cancel button:
     self.GroupBegin(GROUP_OPTIONS, c4d.BFH_CENTER, 2, 1)
